@@ -12,7 +12,8 @@ const { errorMiddleware, notFoundMiddleware } = require('./middlewares/error.mid
 
 const app = express();
 
-// Security headers
+// Security middleware
+app.set('trust proxy', 1); // Trust first proxy (Render load balancer)
 app.use(helmet());
 
 // CORS - allow frontend origin with credentials (cookies)
