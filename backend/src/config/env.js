@@ -18,9 +18,9 @@ module.exports = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
 
-  // Resend (production email)
-  RESEND_API_KEY: process.env.RESEND_API_KEY,
-  RESEND_FROM: process.env.RESEND_FROM || 'CollabSphere <onboarding@resend.dev>',
+  // SendGrid (production email)
+  SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+  SENDGRID_FROM: process.env.SENDGRID_FROM || 'noreply@collabsphere.app',
 
   // Nodemailer SMTP (local dev fallback)
   SMTP_HOST: process.env.SMTP_HOST,
