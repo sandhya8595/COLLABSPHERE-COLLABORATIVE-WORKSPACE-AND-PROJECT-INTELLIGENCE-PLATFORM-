@@ -18,11 +18,16 @@ module.exports = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
 
+  // Resend (production email)
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESEND_FROM: process.env.RESEND_FROM || 'CollabSphere <onboarding@resend.dev>',
+
+  // Nodemailer SMTP (local dev fallback)
   SMTP_HOST: process.env.SMTP_HOST,
   SMTP_PORT: process.env.SMTP_PORT,
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASS: process.env.SMTP_PASS,
-  EMAIL_FROM: process.env.EMAIL_FROM || 'CollabSphere <no-reply@collabsphere.co>',
+  EMAIL_FROM: process.env.EMAIL_FROM || 'CollabSphere <onboarding@resend.dev>',
 
   MAX_FILE_SIZE_MB: Number(process.env.MAX_FILE_SIZE_MB) || 25,
   UPLOAD_DIR: process.env.UPLOAD_DIR || 'uploads',
