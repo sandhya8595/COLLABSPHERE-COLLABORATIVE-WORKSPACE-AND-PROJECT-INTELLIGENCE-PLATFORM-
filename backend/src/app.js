@@ -14,7 +14,9 @@ const app = express();
 
 // Security middleware
 app.set('trust proxy', 1); // Trust first proxy (Render load balancer)
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+}));
 
 // CORS - allow frontend origin with credentials (cookies)
 app.use(
