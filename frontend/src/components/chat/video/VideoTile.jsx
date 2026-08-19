@@ -30,6 +30,15 @@ const VideoTile = ({
     .toUpperCase()
     .slice(0, 2) || 'U';
 
+  const getAvatarUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('/uploads')) {
+      const baseUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+      return `${baseUrl}${url}`;
+    }
+    return url;
+  };
+
   return (
     <div
       className={`group relative flex items-center justify-center overflow-hidden rounded-2xl bg-gray-900 shadow-xl transition-all duration-300 ${
@@ -52,7 +61,7 @@ const VideoTile = ({
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-950 p-4">
           {user?.avatar ? (
             <img
-              src={user.avatar}
+              src={getAvatarUrl(user.avatar)}
               alt={displayName}
               className="h-20 w-20 rounded-full object-cover ring-4 ring-indigo-500/40 shadow-lg"
             />

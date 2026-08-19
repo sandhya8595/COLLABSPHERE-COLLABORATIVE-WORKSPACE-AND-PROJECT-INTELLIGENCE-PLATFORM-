@@ -17,11 +17,20 @@ const Avatar = ({ user, size = 'md', showStatus = false, className = '' }) => {
   const sizeClasses = SIZE_MAP[size] || SIZE_MAP.md;
   const initials = getInitials(user?.firstName, user?.lastName);
 
+  const getAvatarUrl = (url) => {
+    if (!url) return null;
+    if (url.startsWith('/uploads')) {
+      const baseUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+      return `${baseUrl}${url}`;
+    }
+    return url;
+  };
+
   return (
     <div className={`relative inline-flex flex-shrink-0 ${className}`}>
       {user?.avatar ? (
         <img
-          src={user.avatar}
+          src={getAvatarUrl(user.avatar)}
           alt={`${user.firstName} ${user.lastName || ''}`}
           className={`${sizeClasses} rounded-full object-cover ring-2 ring-white`}
         />
