@@ -45,6 +45,15 @@ app.use('/uploads', express.static('uploads'));
 // Rate limiting (applied to all API routes)
 app.use('/api', apiLimiter);
 
+// Root health check endpoint
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'success',
+    message: 'CollabSphere API Backend Server is live and running successfully!',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Routes
 app.use('/api/v1', routes);
 
