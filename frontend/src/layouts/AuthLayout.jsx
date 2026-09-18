@@ -14,7 +14,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
 
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-md rounded-2xl bg-white/60 p-8 shadow-xl backdrop-blur">
-            <div className="mb-4 h-40 rounded-xl bg-gradient-to-br from-primary-500 to-indigo-500 opacity-90" />
+            <img src="/auth-illustration.jpg" alt="Collaboration Illustration" className="mb-4 h-40 w-full rounded-xl object-cover shadow-sm" />
             <p className="text-sm text-gray-600">
               Real-time collaboration, project intelligence, and enterprise-grade security — all
               in one workspace.
