@@ -4,27 +4,33 @@ const AuthLayout = ({ children, title, subtitle }) => {
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Left panel - branding */}
-      <div className="hidden flex-col justify-between bg-gradient-to-br from-primary-50 to-indigo-50 p-12 lg:flex">
-        <div className="flex items-center gap-2">
+      <div className="relative hidden flex-col justify-between bg-gray-900 p-12 lg:flex overflow-hidden">
+        {/* Background Image */}
+        <img 
+          src="https://images.unsplash.com/photo-1734277659540-bfbedb4ac46b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDIwfENEd3V3WEpBYkV3fHxlbnwwfHx8fHw%3D" 
+          alt="Background" 
+          className="absolute inset-0 z-0 h-full w-full object-cover opacity-25" 
+        />
+        
+        <div className="relative z-10 flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-white">
             <Boxes size={20} />
           </div>
-          <span className="text-xl font-bold text-gray-900">CollabSphere</span>
+          <span className="text-xl font-bold text-white">CollabSphere</span>
         </div>
 
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-md rounded-2xl bg-white/60 p-8 shadow-xl backdrop-blur">
-            <img src="/auth-illustration.jpg" alt="Collaboration Illustration" className="mb-4 h-40 w-full rounded-xl object-cover shadow-sm" />
-            <p className="text-sm text-gray-600">
+        <div className="relative z-10 flex flex-1 items-center justify-center">
+          <div className="w-full max-w-md rounded-2xl bg-white/10 p-8 shadow-xl backdrop-blur-md border border-white/20">
+            <p className="text-sm text-white/90">
               Real-time collaboration, project intelligence, and enterprise-grade security — all
               in one workspace.
             </p>
           </div>
         </div>
 
-        <div>
-          <h2 className="text-3xl font-bold text-gray-900">Enterprise Collaboration, Simplified.</h2>
-          <p className="mt-2 max-w-md text-gray-600">
+        <div className="relative z-10">
+          <h2 className="text-3xl font-bold text-white">Enterprise Collaboration, Simplified.</h2>
+          <p className="mt-2 max-w-md text-white/80">
             Connect your teams, align your goals, and ship faster with our unified workspace
             platform designed for modern workflows.
           </p>
