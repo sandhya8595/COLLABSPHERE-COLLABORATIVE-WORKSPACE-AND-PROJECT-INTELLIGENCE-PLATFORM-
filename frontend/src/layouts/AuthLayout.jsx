@@ -9,7 +9,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
         <img 
           src="https://images.unsplash.com/photo-1734277659540-bfbedb4ac46b?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHx0b3BpYy1mZWVkfDIwfENEd3V3WEpBYkV3fHxlbnwwfHx8fHw%3D" 
           alt="Background" 
-          className="absolute inset-0 z-0 h-full w-full object-cover opacity-25" 
+          className="absolute inset-0 z-0 h-full w-full object-cover opacity-50" 
         />
         
         <div className="relative z-10 flex items-center gap-2">
