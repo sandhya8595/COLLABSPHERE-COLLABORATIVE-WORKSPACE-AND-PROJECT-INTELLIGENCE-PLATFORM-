@@ -71,23 +71,31 @@ export const useWebRTCCall = ({ socket, activeChatId, user }) => {
   const cleanupCall = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
 
+    // Close all peer connections
     peerConnectionsRef.current.forEach((pc) => {
-      try {
-        pc.close();
-      } catch (e) {
-        // ignore
-      }
+      try { pc.close(); } catch (e) { /* ignore */ }
     });
     peerConnectionsRef.current.clear();
     pendingCandidatesRef.current.clear();
 
-    if (localStreamRef.current) {
-      localStreamRef.current.getTracks().forEach((track) => track.stop());
-      localStreamRef.current = null;
-    }
+    // Stop screen share track first
     if (screenTrackRef.current) {
       try { screenTrackRef.current.stop(); } catch (e) { /* ignore */ }
       screenTrackRef.current = null;
+    }
+
+    // Stop all local media tracks (camera + mic)
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => {
+        try { track.stop(); } catch (e) { /* ignore */ }
+      });
+      localStreamRef.current = null;
+    }
+    cameraTrackRef.current = null;
+
+    // Exit fullscreen if active
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
     }
 
     setLocalStream(null);
@@ -415,13 +423,23 @@ export const useWebRTCCall = ({ socket, activeChatId, user }) => {
     }
   };
 
-  // Leave Call
-  const leaveCall = () => {
-    if (socket && activeChatIdRef.current) {
-      socket.emit('call:leave', { chatId: activeChatIdRef.current });
+  // Leave Call — capture socket & chatId at call-time so they're never stale
+  const leaveCall = useCallback(() => {
+    // Grab current values synchronously before any state change
+    const chatId = activeChatIdRef.current;
+    const currentSocket = socket;
+
+    // 1. Notify server FIRST (before listeners are torn down by isCallActive→false)
+    if (currentSocket && chatId) {
+      currentSocket.emit('call:leave', { chatId });
     }
-    cleanupCall();
-  };
+
+    // 2. Run cleanup on next tick so the emit is flushed before the effect
+    //    that watches isCallActive removes the socket listeners
+    setTimeout(() => {
+      cleanupCall();
+    }, 0);
+  }, [socket, cleanupCall]);
 
   // Toggle Microphone
   const toggleAudio = () => {
