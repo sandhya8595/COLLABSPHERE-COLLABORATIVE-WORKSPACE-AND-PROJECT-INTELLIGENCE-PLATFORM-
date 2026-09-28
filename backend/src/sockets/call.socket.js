@@ -1,5 +1,5 @@
 const logger = require('../utils/logger');
-
+const cleanupTimers = new Map(); // roomName -> timeoutId
 const activeCalls = new Map(); // chatId -> Set of user sockets metadata
 
 const registerCallHandlers = (io, socket) => {
@@ -112,13 +112,27 @@ const registerCallHandlers = (io, socket) => {
           userId: socket.user?._id,
         });
 
-        setTimeout(() => {
+        // Debounced cleanup – wait 30 s before announcing empty room
+        if (cleanupTimers.has(room)) clearTimeout(cleanupTimers.get(room));
+        const timerId = setTimeout(() => {
           const roomSockets = io.sockets.adapter.rooms.get(room) || new Set();
           io.to(`chat:${chatId}`).emit('call:status-update', {
             chatId,
             activeCount: roomSockets.size,
           });
-        }, 100);
+          cleanupTimers.delete(room);
+        }, 30000);
+        cleanupTimers.set(room, timerId);
+      }
+    }
+  });
+
+  // When a socket fully disconnects, clear any pending timers for its rooms
+  socket.on('disconnect', () => {
+    for (const [room, timerId] of cleanupTimers.entries()) {
+      if (socket.rooms.has(room)) {
+        clearTimeout(timerId);
+        cleanupTimers.delete(room);
       }
     }
   });
