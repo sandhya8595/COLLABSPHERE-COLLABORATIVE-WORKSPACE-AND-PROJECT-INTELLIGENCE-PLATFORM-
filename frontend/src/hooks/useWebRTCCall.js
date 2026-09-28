@@ -46,10 +46,21 @@ export const useWebRTCCall = ({ socket, activeChatId, user }) => {
   const screenTrackRef = useRef(null);
   const timerRef = useRef(null);
   const activeChatIdRef = useRef(activeChatId);
+  const isCallActiveRef = useRef(false);   // ref-copy so reconnect handler sees live value
+  const socketRef = useRef(socket);         // ref-copy so reconnect closure is never stale
 
   useEffect(() => {
     activeChatIdRef.current = activeChatId;
   }, [activeChatId]);
+
+  useEffect(() => {
+    socketRef.current = socket;
+  }, [socket]);
+
+  // Keep isCallActiveRef in sync
+  useEffect(() => {
+    isCallActiveRef.current = isCallActive;
+  }, [isCallActive]);
 
   // Handle call timer
   useEffect(() => {
@@ -217,7 +228,8 @@ export const useWebRTCCall = ({ socket, activeChatId, user }) => {
 
     pc.onconnectionstatechange = () => {
       console.log(`[WebRTC] Connection state for ${targetSocketId}: ${pc.connectionState}`);
-      if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+      if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
+        // Hard failure — remove immediately
         peerConnectionsRef.current.delete(targetSocketId);
         pendingCandidatesRef.current.delete(targetSocketId);
         setParticipants((prev) => {
@@ -226,6 +238,9 @@ export const useWebRTCCall = ({ socket, activeChatId, user }) => {
           return next;
         });
       }
+      // 'disconnected' is transient — WebRTC may self-recover within a few seconds.
+      // We intentionally do NOT remove the peer here; oniceconnectionstatechange
+      // will handle a hard 'failed' if recovery doesn't happen.
     };
 
     if (isInitiator) {
@@ -380,6 +395,38 @@ export const useWebRTCCall = ({ socket, activeChatId, user }) => {
       socket.off('call:user-left', handleUserLeft);
     };
   }, [socket, isCallActive, createPeerConnection, flushCandidates]);
+
+  // ── Socket Reconnect Handler ─────────────────────────────────────────────
+  // If the socket drops & reconnects mid-call, automatically re-join the call
+  // room so signalling resumes and peer connections can be re-established.
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleReconnect = () => {
+      if (!isCallActiveRef.current || !activeChatIdRef.current) return;
+      console.log('[WebRTC] Socket reconnected during active call — re-joining call room...');
+
+      // Close stale peer connections; the other side will re-offer
+      peerConnectionsRef.current.forEach((pc) => {
+        try { pc.close(); } catch (e) { /* ignore */ }
+      });
+      peerConnectionsRef.current.clear();
+      pendingCandidatesRef.current.clear();
+      setParticipants({});
+
+      // Re-join the call room on the server
+      socketRef.current.emit('call:join', { chatId: activeChatIdRef.current });
+    };
+
+    socket.on('reconnect', handleReconnect);
+    socket.io.on('reconnect', handleReconnect); // socket.io manager-level event
+
+    return () => {
+      socket.off('reconnect', handleReconnect);
+      socket.io.off('reconnect', handleReconnect);
+    };
+  }, [socket]);
+
 
   // Start / Join Call
   const startCall = async () => {
