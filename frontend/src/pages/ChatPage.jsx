@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 import ChatSidebar from '../components/chat/ChatSidebar';
@@ -25,6 +25,8 @@ import { useWebRTCCall } from '../hooks/useWebRTCCall';
 const ChatPage = () => {
   const { workspaceId } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
+  const autoJoinedRef = useRef(false);
   const dispatch = useDispatch();
   const { socket } = useSocket();
   const { user } = useAuth();
@@ -50,11 +52,20 @@ const ChatPage = () => {
     }
   }, [chats, activeChatId]);
 
-  // Auto-start video call if URL parameter ?joinCall=true is present
+  // Auto-start the call once for ?joinCall=true, then strip the param so
+  // leaving the call does not immediately re-join it.
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
-    if (searchParams.get('joinCall') === 'true' && activeChatId && !webrtcCall.isCallActive) {
+    if (searchParams.get('joinCall') !== 'true') {
+      autoJoinedRef.current = false;
+      return;
+    }
+    if (activeChatId && !autoJoinedRef.current && !webrtcCall.isCallActive) {
+      autoJoinedRef.current = true;
       webrtcCall.startCall();
+      searchParams.delete('joinCall');
+      const qs = searchParams.toString();
+      navigate({ pathname: location.pathname, search: qs ? '?' + qs : '' }, { replace: true });
     }
   }, [location.search, activeChatId, webrtcCall.isCallActive]);
 
@@ -126,8 +137,18 @@ const ChatPage = () => {
     try {
       await chatService.deleteMessageForMe(messageId);
       dispatch(removeMessageForMe(messageId));
-    } catch {
-      // ignore
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Could not delete message.');
+    }
+  };
+
+  const handleDeleteForEveryone = async (messageId) => {
+    if (!window.confirm('Delete this message for everyone?')) return;
+    try {
+      await chatService.deleteMessage(messageId);
+      dispatch(removeMessageForMe(messageId));
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Could not delete message.');
     }
   };
 
@@ -160,6 +181,7 @@ const ChatPage = () => {
         onReact={handleReact}
         onOpenThread={setThreadMessage}
         onDeleteForMe={handleDeleteForMe}
+        onDeleteForEveryone={handleDeleteForEveryone}
         onClearChatForMe={handleClearChatForMe}
         currentUserId={user?._id}
         onToggleInfo={() => {}}

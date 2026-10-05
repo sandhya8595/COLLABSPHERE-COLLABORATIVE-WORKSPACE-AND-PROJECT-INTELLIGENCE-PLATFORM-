@@ -7,7 +7,7 @@ import { formatRelativeTime } from '../../utils/formatDate';
 const QUICK_REACTIONS = ['👍', '❤️', '😂', '🎉', '🙌'];
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
 
-const MessageBubble = ({ message, onReact, onOpenThread, onDeleteForMe, currentUserId }) => {
+const MessageBubble = ({ message, onReact, onOpenThread, onDeleteForMe, onDeleteForEveryone, currentUserId }) => {
   const [showReactionPicker, setShowReactionPicker] = useState(false);
   const { workspaceId } = useParams();
 
@@ -184,6 +184,16 @@ const MessageBubble = ({ message, onReact, onOpenThread, onDeleteForMe, currentU
         >
           <Trash2 size={15} />
         </button>
+
+        {onDeleteForEveryone && String(message.sender?._id || message.sender) === String(currentUserId) && (
+          <button
+            onClick={() => onDeleteForEveryone(message._id)}
+            title="Delete for everyone"
+            className="rounded-md p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600"
+          >
+            <Trash2 size={15} />
+          </button>
+        )}
 
         {showReactionPicker && (
           <div className="absolute right-0 top-8 z-10 flex gap-1 rounded-lg border border-gray-100 bg-white p-1.5 shadow-lg">

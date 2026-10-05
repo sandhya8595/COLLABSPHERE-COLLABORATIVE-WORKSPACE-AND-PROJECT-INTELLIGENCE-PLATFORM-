@@ -13,6 +13,7 @@ const ChatWindow = ({
   onReact,
   onOpenThread,
   onDeleteForMe,
+  onDeleteForEveryone,
   onClearChatForMe,
   currentUserId,
   onToggleInfo,
@@ -84,6 +85,7 @@ const ChatWindow = ({
             onReact={onReact}
             onOpenThread={onOpenThread}
             onDeleteForMe={onDeleteForMe}
+            onDeleteForEveryone={onDeleteForEveryone}
             currentUserId={currentUserId}
           />
         ))}
