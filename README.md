@@ -72,6 +72,3 @@ Open `http://localhost:5173` — the Vite dev server proxies API calls to the ba
 
 Deliberately **not used**, per project requirements: TypeScript, Prisma, PostgreSQL, Redis, Docker.
 
-## License
-
-Internal project — license terms as defined by the project owner.
