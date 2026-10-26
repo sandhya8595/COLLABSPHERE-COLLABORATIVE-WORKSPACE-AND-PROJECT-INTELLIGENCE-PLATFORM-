@@ -54,7 +54,7 @@ Open `http://localhost:5173` — the Vite dev server proxies API calls to the ba
 - **Notifications** — real-time via Socket.IO, backed by a persistent notification center
 - **Analytics** — productivity score, task completion trends, team workload, top contributors
 - **Global search** — across tasks, documents, files, chat messages, and users
-- **Audit logging** — every critical action (deletes, role changes, restores) is recorded
+
 
 ## Tech Stack Summary
 
